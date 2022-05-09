@@ -69,38 +69,32 @@ async function unzip(
         });
 
         logInfo(`open reader on zip: ${zipFileUrl}`);
-        zip.createReader(new zip.BlobReader(zipBlob), (zipReader) => {
+        let zipEntries = await (new zip.ZipReader(new zip.BlobReader(zipBlob))).getEntries();
+        logDebug(`entries read: ${zipFileUrl}`);
 
-            logDebug(`reader opened on zip: ${zipFileUrl}`);
-            zipReader.getEntries(async (zipEntries) => {
+        onProgress(0, zipEntries.length);
 
-                logDebug(`entries read: ${zipFileUrl}`);
+        try {
 
-                onProgress(0, zipEntries.length);
+            let i = 0;
+            for (const entry of zipEntries) {
+                await unzipEntry(entry, outputDirectoryEntry);
 
-                try {
+                onProgress(++i, zipEntries.length);
+            }
 
-                    let i = 0;
-                    for (const entry of zipEntries) {
-                        await unzipEntry(entry, outputDirectoryEntry);
-
-                        onProgress(++i, zipEntries.length);
-                    }
-
-                    zipReader.close(() => {
-                        logInfo(`unzip OK from ${zipFileUrl} to ${outputDirectoryUrl}`);
-                        successCallback({
-                            total: zipEntries.length
-                        });
-                    });
-
-                } catch (e) {
-                    console.error(e, `error while unzipping ${zipFileUrl} to ${outputDirectoryUrl}`);
-                    zipReader.close();
-                    errorCallback(e);
-                }
+            //zipReader.close(() => {
+            logInfo(`unzip OK from ${zipFileUrl} to ${outputDirectoryUrl}`);
+            successCallback({
+                total: zipEntries.length
             });
-        }, errorCallback);
+            //});
+
+        } catch (e) {
+            console.error(e, `error while unzipping ${zipFileUrl} to ${outputDirectoryUrl}`);
+            //zipReader.close();
+            errorCallback(e);
+        }
 
     } catch (e) {
         console.error(e, `error while unzipping ${zipFileUrl} to ${outputDirectoryUrl}`);

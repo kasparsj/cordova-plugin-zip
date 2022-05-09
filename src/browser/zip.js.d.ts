@@ -35,10 +35,9 @@ declare namespace zip {
 		constructor(url: string);
 	}
 
-	export function createReader(reader: zip.Reader, callback: (zipReader: ZipReader) => void, onerror?: (error: any) => void): void;
-
 	export class ZipReader {
-		getEntries(callback: (entries: zip.Entry[]) => void): void;
+		constructor(reader: Reader);
+		getEntries(): zip.Entry[];
 		close(callback?: () => void): void;
 	}
 

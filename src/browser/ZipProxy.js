@@ -327,31 +327,27 @@ function unzip(zipFileUrl, outputDirectoryUrl, successCallback, errorCallback) {
                 zipEntry.file(resolve, reject);
             });
             logInfo(`open reader on zip: ${zipFileUrl}`);
-            zip.createReader(new zip.BlobReader(zipBlob), (zipReader) => {
-                logDebug(`reader opened on zip: ${zipFileUrl}`);
-                zipReader.getEntries((zipEntries) => __awaiter(this, void 0, void 0, function* () {
-                    logDebug(`entries read: ${zipFileUrl}`);
-                    onProgress(0, zipEntries.length);
-                    try {
-                        let i = 0;
-                        for (const entry of zipEntries) {
-                            yield unzipEntry(entry, outputDirectoryEntry);
-                            onProgress(++i, zipEntries.length);
-                        }
-                        zipReader.close(() => {
-                            logInfo(`unzip OK from ${zipFileUrl} to ${outputDirectoryUrl}`);
-                            successCallback({
-                                total: zipEntries.length
-                            });
-                        });
-                    }
-                    catch (e) {
-                        console.error(e, `error while unzipping ${zipFileUrl} to ${outputDirectoryUrl}`);
-                        zipReader.close();
-                        errorCallback(e);
-                    }
-                }));
-            }, errorCallback);
+            let zipEntries = yield (new zip.ZipReader(new zip.BlobReader(zipBlob))).getEntries();
+            logDebug(`entries read: ${zipFileUrl}`);
+            onProgress(0, zipEntries.length);
+            try {
+                let i = 0;
+                for (const entry of zipEntries) {
+                    yield unzipEntry(entry, outputDirectoryEntry);
+                    onProgress(++i, zipEntries.length);
+                }
+                //zipReader.close(() => {
+                logInfo(`unzip OK from ${zipFileUrl} to ${outputDirectoryUrl}`);
+                successCallback({
+                    total: zipEntries.length
+                });
+                //});
+            }
+            catch (e) {
+                console.error(e, `error while unzipping ${zipFileUrl} to ${outputDirectoryUrl}`);
+                //zipReader.close();
+                errorCallback(e);
+            }
         }
         catch (e) {
             console.error(e, `error while unzipping ${zipFileUrl} to ${outputDirectoryUrl}`);
