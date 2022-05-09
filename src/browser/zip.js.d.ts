@@ -1,4 +1,4 @@
-// Type definitions for zip.js 2.x
+// Type definitions for zip.js 2.4.11
 // Project: https://github.com/gildas-lormeau/zip.js
 // Definitions by: Louis Grignon <https://github.com/lgrignon>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -36,9 +36,25 @@ declare namespace zip {
 	}
 
 	export class ZipReader {
-		constructor(reader: Reader);
+		constructor(reader: Reader, options?: ZipReaderConstructorOptions);
 		getEntries(): zip.Entry[];
 		close(callback?: () => void): void;
+	}
+
+	type ZipReaderConstructorOptions = ZipReaderOptions & GetEntriesOptions;
+
+	type ZipReaderGetEntriesOptions = EntryOnprogressOption & GetEntriesOptions;
+
+	interface ZipReaderOptions {
+		checkSignature?: boolean;
+		password?: string;
+		useWebWorkers?: boolean;
+		signal?: AbortSignal;
+	}
+
+	interface GetEntriesOptions {
+		filenameEncoding?: string;
+		commentEncoding?: string;
 	}
 
 	export interface Entry {
@@ -89,5 +105,49 @@ declare namespace zip {
 	export class ZipWriter {
 		public add(name: string, reader: zip.Reader, onend: () => void, onprogress?: (progress: number, total: number) => void, options?: WriteOptions): void;
 		public close(callback: (result: any) => void): void;
+	}
+
+	type ZipWriterAddDataOptions = EntryDataOnprogressOption & AddDataOptions & ZipWriterConstructorOptions;
+
+	type ZipWriterCloseOptions = EntryOnprogressOption & CloseOptions;
+
+	interface ZipWriterConstructorOptions {
+		zip64?: boolean;
+		level?: number;
+		bufferedWrite?: boolean;
+		keepOrder?: boolean;
+		version?: number;
+		password?: string;
+		encryptionStrength?: number;
+		zipCrypto?: boolean;
+		useWebWorkers?: boolean;
+		dataDescriptor?: boolean;
+		dataDescriptorSignature?: boolean;
+		signal?: AbortSignal;
+		lastModDate?: Date;
+		lastAccessDate?: Date;
+		creationDate?: Date;
+		extendedTimestamp?: boolean;
+		msDosCompatible?: boolean;
+		internalFileAttribute?: number;
+		externalFileAttribute?: number;
+	}
+
+	interface AddDataOptions {
+		directory?: boolean;
+		comment?: string;
+		extraField?: Map<number, Uint8Array>;
+	}
+
+	interface CloseOptions {
+		zip64?: boolean;
+	}
+
+	interface EntryDataOnprogressOption {
+		onprogress?: (progress: number, total: number) => void;
+	}
+
+	interface EntryOnprogressOption {
+		onprogress?: (progress: number, total: number, entry: Entry) => void;
 	}
 }

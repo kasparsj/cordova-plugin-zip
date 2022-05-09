@@ -328,7 +328,7 @@ function unzip(zipFileUrl, outputDirectoryUrl, successCallback, errorCallback) {
                 zipEntry.file(resolve, reject);
             });
             logInfo(`open reader on zip: ${zipFileUrl}`);
-            let zipEntries = yield (new zip.ZipReader(new zip.BlobReader(zipBlob))).getEntries();
+            let zipEntries = yield (new zip.ZipReader(new zip.BlobReader(zipBlob), { useWebWorkers: false })).getEntries();
             logDebug(`entries read: ${zipFileUrl}`);
             onProgress(0, zipEntries.length);
             try {
