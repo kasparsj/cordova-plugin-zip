@@ -21,10 +21,11 @@ async function unzipEntry(entry: zip.Entry, outputDirectoryEntry: DirectoryEntry
             outputDirectoryEntry.getFile(entry.filename, { create: true, exclusive: false }, resolve, reject);
         });
         logDebug('adding file (write file): ' + entry.filename);
-        await new Promise((resolve, reject) => {
-            entry.getData(new zip.FileWriter(targetFileEntry), resolve, (progress, total) => {
-                logDebug(`${entry.filename}: ${progress} / ${total}`);
-            });
+        const blob:Blob = await entry.getData(new zip.BlobWriter(), (progress, total) => {
+            logDebug(`${entry.filename}: ${progress} / ${total}`);
+        });
+        targetFileEntry.createWriter((fileWriter) => {
+            fileWriter.write(blob);
         });
         logDebug('added file: ' + entry.filename);
     }

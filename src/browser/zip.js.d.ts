@@ -51,7 +51,7 @@ declare namespace zip {
 		comment: string;
 		crc32: number;
 
-		getData(writer: zip.Writer, onend: (result: any) => void, onprogress?: (progress: number, total: number) => void, checkCrc32?: boolean): void;
+		getData(writer: zip.Writer, onprogress?: (progress: number, total: number) => void, checkCrc32?: boolean): Promise<any>;
 	}
 
 	export class Writer {
@@ -65,7 +65,7 @@ declare namespace zip {
 	}
 
 	export class BlobWriter extends Writer {
-		constructor(contentType: string);
+		constructor(contentType?: string);
 	}
 
 	export class FileWriter extends Writer {
